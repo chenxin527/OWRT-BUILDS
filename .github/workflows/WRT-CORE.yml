@@ -256,4 +256,5 @@ jobs:
             WIFI密码：${{env.WRT_WORD}}
 
             内核版本：${{env.WRT_KVER}}
-            插件列表：${{env.WRT_LIST}}
+            插件列表：
+            ${{env.WRT_LIST}}
