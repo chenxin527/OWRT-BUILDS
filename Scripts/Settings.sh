@@ -31,6 +31,13 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $CFG_FILE
 #修改默认主机名
 sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" $CFG_FILE
 
+#修改DHCP默认配置
+DHCP_CONFIG=./package/network/services/dnsmasq/files/dhcp.conf
+ODHCP_CONFIG=./package/network/services/odhcpd/files/odhcpd.defaults
+sed -i "s/option limit\t.*/option limit\t101/" $DHCP_CONFIG
+sed -i "/option leasetime/a\\\toption dns_service\t0" $DHCP_CONFIG
+sed -i "s/set dhcp.lan.limit='.*'/set dhcp.lan.limit='101'/" $ODHCP_CONFIG
+
 #配置文件修改
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
 echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
