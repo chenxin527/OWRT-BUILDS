@@ -76,13 +76,35 @@ if [ -f "$RUST_FILE" ]; then
 	cd $PKG_PATH && echo "rust has been fixed!"
 fi
 
-#集成OpenClash内核
+#配置OpenClash
 if [ -d *"openclash"* ]; then
-	CLASH_CORE_DIR=$PKG_PATH/luci-app-openclash/root/etc/openclash/core
 	echo " "
-	echo Downloading clash-linux-"$CPU_MODEL".tar.gz...
+
+	#修改默认配置
+	OPENCLASH_CONFIG_FILE=$PKG_PATH/luci-app-openclash/root/etc/config/openclash
+	if [ -f "$OPENCLASH_CONFIG_FILE" ]; then
+		sed -i "s/ipv6_dns '.*'/ipv6_dns '1'/; s/enable_custom_clash_rules '.*'/enable_custom_clash_rules '1'/; s/append_wan_dns '.*'/append_wan_dns '1'/; s/append_default_dns '.*'/append_default_dns '1'/" $OPENCLASH_CONFIG_FILE
+		echo "OpenClash config has been changed!"
+	fi
+
+	#添加自定义规则
+	OPENCLASH_CUSTOM_RULES_FILE=$PKG_PATH/luci-app-openclash/root/etc/openclash/custom/openclash_custom_rules.list
+	if [ -f "$OPENCLASH_CUSTOM_RULES_FILE" ]; then
+		{
+			echo -e "\n"
+			echo "##我的规则"
+			echo "- DOMAIN-SUFFIX,cudy.com,DIRECT"
+			echo "- DOMAIN-SUFFIX,login.microsoftonline.com,DIRECT"
+			echo "- DOMAIN-SUFFIX,msftconnecttest.com,DIRECT"
+			echo "- DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT"
+			echo "- DST-PORT,22,DIRECT"
+		} >> $OPENCLASH_CUSTOM_RULES_FILE
+		echo "OpenClash custom rules have been added!"
+	fi
+
+	#集成Clash Meta内核
+	CLASH_CORE_DIR=$PKG_PATH/luci-app-openclash/root/etc/openclash/core
 	curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-"$CPU_MODEL".tar.gz -o /tmp/clash.tar.gz
-	echo Download completed, extracting...
 	tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
 	chmod +x /tmp/clash >/dev/null 2>&1
 	mkdir -p $CLASH_CORE_DIR
@@ -91,7 +113,8 @@ if [ -d *"openclash"* ]; then
 	if [ -x "$CLASH_CORE_DIR/clash_meta" ]; then
 		echo "OpenClash core has been installed!"
 	else
-		echo "OpenClash core hasn't been installed correctly!"
+		echo "OpenClash core installation failed!"
 	fi
+
 	cd $PKG_PATH
 fi
