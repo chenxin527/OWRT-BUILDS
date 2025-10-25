@@ -236,11 +236,7 @@ jobs:
           tag_name: ${{env.WRT_CONFIG_TARGET}}-${{env.WRT_INFO}}-${{env.WRT_BRANCH}}-${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-            这是个平台固件包，内含多个设备！
-            请注意选择你需要的设备固件！
-            不要问，刷就完事了！
-
-            全系带开源硬件加速，别问了！
+            固件带开源 NSS 硬件加速。
 
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
