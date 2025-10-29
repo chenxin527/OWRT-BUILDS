@@ -1,4 +1,4 @@
-# OWRT-Builds
+# OWRT-BUILDS
 
 本仓库修改自以下仓库：https://github.com/VIKINGYFY/OpenWRT-CI
 
