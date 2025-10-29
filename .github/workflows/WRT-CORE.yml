@@ -245,6 +245,8 @@ jobs:
             配置：${{env.WRT_CONFIG_TARGET}}
             平台：${{env.WRT_TARGET}}
 
+            默认主题：${{env.WRT_THEME}}
+
             登录地址：${{env.WRT_IP}}
             登录密码：${{env.WRT_PW}}
 
