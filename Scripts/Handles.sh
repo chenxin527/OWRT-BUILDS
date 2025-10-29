@@ -35,6 +35,27 @@ if [ -d *"luci-theme-argon"* ]; then
 	cd $PKG_PATH && echo "theme-argon has been fixed!"
 fi
 
+#修改aurora主题配置
+if [ -d *"luci-theme-aurora"* ]; then
+	echo " "
+
+	cd ./luci-theme-aurora/
+
+	sed -i "/main.mediaurlbase/d" ./root/etc/uci-defaults/30_luci-theme-aurora
+
+	cd $PKG_PATH && echo "theme-aurora has been fixed!"
+fi
+
+#修改bootstrap主题配置
+BOOTSTRAP_THEME_DIR=../feeds/luci/themes/luci-theme-bootstrap
+if [ -d "$BOOTSTRAP_THEME_DIR"* ]; then
+	echo " "
+
+	sed -i "/main.mediaurlbase/d" $BOOTSTRAP_THEME_DIR/root/etc/uci-defaults/30_luci-theme-bootstrap
+
+	cd $PKG_PATH && echo "theme-bootstrap has been fixed!"
+fi
+
 #修改qca-nss-drv启动顺序
 NSS_DRV="../feeds/nss_packages/qca-nss-drv/files/qca-nss-drv.init"
 if [ -f "$NSS_DRV" ]; then
