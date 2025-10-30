@@ -51,7 +51,7 @@ BOOTSTRAP_THEME_DIR=../feeds/luci/themes/luci-theme-bootstrap
 if [ -d "$BOOTSTRAP_THEME_DIR"* ]; then
 	echo " "
 
-	sed -i "/main.mediaurlbase/d" $BOOTSTRAP_THEME_DIR/root/etc/uci-defaults/30_luci-theme-bootstrap
+	sed -i '/if \[ "\$PKG_UPGRADE" != 1 \] && \[ \$changed = 1 \]; then/,/fi/d' $BOOTSTRAP_THEME_DIR/root/etc/uci-defaults/30_luci-theme-bootstrap
 
 	cd $PKG_PATH && echo "theme-bootstrap has been fixed!"
 fi
