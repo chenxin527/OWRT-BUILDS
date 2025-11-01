@@ -10,6 +10,11 @@ on:
         description: '手动调整插件包，多个请用\n符号隔开。例：CONFIG_PACKAGE_luci-app-homeproxy=y\nCONFIG_PACKAGE_luci-app-openclash=y'
         required: false
         type: string
+      CACHE:
+        description: '使用缓存编译。'
+        default: 'false'
+        required: false
+        type: boolean
       TEST:
         description: '仅输出配置文件，不编译固件。'
         default: 'false'
@@ -58,5 +63,7 @@ jobs:
       WRT_SOURCE: ${{matrix.SOURCE}}
       #插件调整
       WRT_PACKAGE: ${{inputs.PACKAGE}}
+      #使用缓存编译
+      WRT_CACHE: ${{inputs.CACHE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}

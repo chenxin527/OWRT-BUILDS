@@ -40,6 +40,9 @@ on:
       WRT_PACKAGE:
         required: false
         type: string
+      WRT_CACHE:
+        required: false
+        type: string
       WRT_TEST:
         required: false
         type: string
@@ -59,6 +62,7 @@ env:
   WRT_SOURCE: ${{inputs.WRT_SOURCE}}
   WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
   WRT_TEST: ${{inputs.WRT_TEST}}
+  WRT_CACHE: ${{inputs.WRT_CACHE}}
 
 jobs:
   core:
@@ -116,7 +120,7 @@ jobs:
 
       - name: Check Caches
         id: check-cache
-        if: env.WRT_TEST != 'true'
+        if: env.WRT_TEST != 'true' && env.WRT_CACHE == 'true'
         uses: actions/cache@main
         with:
           key: ${{env.WRT_CONFIG}}-${{env.WRT_INFO}}-${{env.WRT_HASH}}
@@ -127,7 +131,7 @@ jobs:
             ./wrt/staging_dir/tool*
 
       - name: Update Caches
-        if: env.WRT_TEST != 'true'
+        if: env.WRT_TEST != 'true' && env.WRT_CACHE == 'true'
         run: |
           if [ -d "./wrt/staging_dir" ]; then
             find "./wrt/staging_dir" -type d -name "stamp" -not -path "*target*" | while read -r DIR; do
