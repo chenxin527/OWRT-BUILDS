@@ -6,20 +6,28 @@ on:
   #手动编译
   workflow_dispatch:
     inputs:
-      PACKAGE:
-        description: '手动调整插件包，多个请用\n符号隔开。例：CONFIG_PACKAGE_luci-app-homeproxy=y\nCONFIG_PACKAGE_luci-app-openclash=y'
-        required: false
-        type: string
+      FIRMWARE_TYPE:
+        description: '固件类型'
+        required: true
+        type: choice
+        options:
+          - Factory + Sysupgrade
+          - uImage Only
+        default: 'Factory + Sysupgrade'
       CACHE:
-        description: '使用缓存编译。'
+        description: '使用缓存编译'
         default: 'false'
         required: false
         type: boolean
       TEST:
-        description: '仅输出配置文件，不编译固件。'
+        description: '仅输出配置文件，不编译固件'
         default: 'false'
         required: false
         type: boolean
+      PACKAGE:
+        description: '手动调整插件包，多个请用\n符号隔开。例：CONFIG_PACKAGE_luci-app-homeproxy=y\nCONFIG_PACKAGE_luci-app-openclash=y'
+        required: false
+        type: string
 
 #CI权限
 permissions: write-all
@@ -46,13 +54,13 @@ jobs:
       #默认主题
       WRT_THEME: argon
       #默认主机名
-      WRT_NAME: OWRT
+      WRT_NAME: ${{ inputs.FIRMWARE_TYPE == 'Factory + Sysupgrade' && 'OWRT' || inputs.FIRMWARE_TYPE == 'uImage Only' && 'RECOVERY' || 'OWRT' }}
       #默认WIFI名称
-      WRT_SSID: OWRT
+      WRT_SSID: ${{ inputs.FIRMWARE_TYPE == 'Factory + Sysupgrade' && 'OWRT' || inputs.FIRMWARE_TYPE == 'uImage Only' && 'RECOVERY' || 'OWRT' }}
       #默认WIFI密码
       WRT_WORD: 12345678
       #默认地址
-      WRT_IP: 192.168.10.1
+      WRT_IP: ${{ inputs.FIRMWARE_TYPE == 'Factory + Sysupgrade' && '192.168.10.1' || inputs.FIRMWARE_TYPE == 'uImage Only' && '192.168.1.1' || '192.168.10.1' }}
       #默认密码，仅作提示，修改无用
       WRT_PW: 无
       #源码链接
@@ -61,9 +69,11 @@ jobs:
       WRT_BRANCH: ${{matrix.BRANCH}}
       #源码名称
       WRT_SOURCE: ${{matrix.SOURCE}}
-      #插件调整
-      WRT_PACKAGE: ${{inputs.PACKAGE}}
+      #固件类型 - 映射为无空格的内部值
+      WRT_FIRMWARE_TYPE: ${{ inputs.FIRMWARE_TYPE == 'Factory + Sysupgrade' && 'factory-sysupgrade' || inputs.FIRMWARE_TYPE == 'uImage Only' && 'uimage-only' || 'factory-sysupgrade' }}
       #使用缓存编译
       WRT_CACHE: ${{inputs.CACHE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}
+      #插件调整
+      WRT_PACKAGE: ${{inputs.PACKAGE}}

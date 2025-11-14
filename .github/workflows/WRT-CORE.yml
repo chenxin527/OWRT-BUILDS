@@ -37,13 +37,16 @@ on:
       WRT_SOURCE:
         required: true
         type: string
-      WRT_PACKAGE:
-        required: false
+      WRT_FIRMWARE_TYPE:
+        required: true
         type: string
       WRT_CACHE:
         required: false
         type: string
       WRT_TEST:
+        required: false
+        type: string
+      WRT_PACKAGE:
         required: false
         type: string
 
@@ -60,9 +63,10 @@ env:
   WRT_REPO: ${{inputs.WRT_REPO}}
   WRT_BRANCH: ${{inputs.WRT_BRANCH}}
   WRT_SOURCE: ${{inputs.WRT_SOURCE}}
-  WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
-  WRT_TEST: ${{inputs.WRT_TEST}}
+  WRT_FIRMWARE_TYPE: ${{inputs.WRT_FIRMWARE_TYPE}}
   WRT_CACHE: ${{inputs.WRT_CACHE}}
+  WRT_TEST: ${{inputs.WRT_TEST}}
+  WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
 
 jobs:
   core:
@@ -172,7 +176,21 @@ jobs:
         run: |
           cd ./wrt/
 
-          cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+          case "$WRT_FIRMWARE_TYPE" in
+            "factory-sysupgrade")
+              echo "固件类型: Factory + Sysupgrade"
+              cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+              ;;
+            "uimage-only")
+              echo "固件类型: uImage Only"
+              cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/RECOVERY.txt >> .config
+              ;;
+            *)
+              echo "::error::未知的固件类型: $WRT_FIRMWARE_TYPE"
+              echo "支持的固件类型: factory-sysupgrade, uimage-only"
+              exit 1  # 终止 workflow
+              ;;
+          esac
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
 
@@ -234,10 +252,11 @@ jobs:
             make clean -j$(nproc)
           fi
 
-      - name: Release Firmware
+      - name: Release Firmware (Factory + Sysupgrade)
+        if: env.WRT_FIRMWARE_TYPE == 'factory-sysupgrade'
         uses: softprops/action-gh-release@master
         with:
-          tag_name: ${{env.WRT_CONFIG_TARGET}}-${{env.WRT_INFO}}-${{env.WRT_BRANCH}}-${{env.WRT_DATE}}
+          tag_name: FACTORY+SYSUPGRADE-${{env.WRT_CONFIG_TARGET}}-${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
             固件带开源 NSS 硬件加速。
@@ -249,7 +268,9 @@ jobs:
             配置：${{env.WRT_CONFIG_TARGET}}
             平台：${{env.WRT_TARGET}}
 
+            固件类型：Factory + Sysupgrade
             默认主题：${{env.WRT_THEME}}
+            内核版本：${{env.WRT_KVER}}
 
             登录地址：${{env.WRT_IP}}
             登录密码：${{env.WRT_PW}}
@@ -257,6 +278,38 @@ jobs:
             WIFI名称：${{env.WRT_SSID}}
             WIFI密码：${{env.WRT_WORD}}
 
-            内核版本：${{env.WRT_KVER}}
+            编辑工具：hexedit, nano, vim
+            分区工具：fdisk, cfdisk, sfdisk, gdisk, cgdisk, sgdisk, parted
             插件列表：（部分机型可能有额外插件配置，详情请查看config文件）
+            ${{env.WRT_LIST}}
+
+      - name: Release Firmware (uImage Only)
+        if: env.WRT_FIRMWARE_TYPE == 'uimage-only'
+        uses: softprops/action-gh-release@master
+        with:
+          tag_name: UIMAGE-ONLY-${{env.WRT_CONFIG_TARGET}}-${{env.WRT_DATE}}
+          files: ./wrt/upload/*.*
+          body: |
+            内存固件，救砖专用。
+
+            源码：${{env.WRT_REPO}}
+            分支：${{env.WRT_BRANCH}}
+            提交：${{env.WRT_HASH}}
+
+            配置：${{env.WRT_CONFIG_TARGET}}
+            平台：${{env.WRT_TARGET}}
+
+            固件类型：uImage Only
+            默认主题：${{env.WRT_THEME}}
+            内核版本：${{env.WRT_KVER}}
+
+            登录地址：${{env.WRT_IP}}
+            登录密码：${{env.WRT_PW}}
+
+            WIFI名称：${{env.WRT_SSID}}
+            WIFI密码：${{env.WRT_WORD}}
+
+            编辑工具：hexedit, nano, vim
+            分区工具：fdisk, cfdisk, sfdisk, gdisk, cgdisk, sgdisk, parted
+            插件列表：
             ${{env.WRT_LIST}}
