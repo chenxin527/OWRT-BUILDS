@@ -113,10 +113,13 @@ if [ -d *"openclash"* ]; then
 		{
 			echo -e "\n"
 			echo "##我的规则"
+			echo "- DOMAIN-KEYWORD,microsoft,DIRECT"
+			echo "- DOMAIN-SUFFIX,bing.com,DIRECT"
 			echo "- DOMAIN-SUFFIX,cudy.com,DIRECT"
 			echo "- DOMAIN-SUFFIX,immortalwrt.org,DIRECT"
-			echo "- DOMAIN-SUFFIX,login.microsoftonline.com,DIRECT"
 			echo "- DOMAIN-SUFFIX,msftconnecttest.com,DIRECT"
+			echo "- DOMAIN-SUFFIX,pc521.net,DIRECT"
+			echo "- DOMAIN-SUFFIX,pc528.net,DIRECT"
 			echo "- DOMAIN-SUFFIX,xn--ngstr-lra8j.com,DIRECT"
 			echo "- DST-PORT,22,DIRECT"
 		} >> $OPENCLASH_CUSTOM_RULES_FILE
